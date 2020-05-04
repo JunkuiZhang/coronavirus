@@ -52,3 +52,10 @@ def fig_draw(data):
     pyplot.legend(loc='best')
     pyplot.grid()
     pyplot.pause(0.03)
+
+def string_draw(screen, string):
+    font = pygame.font.SysFont('Arial', 20)
+    string_render = font.render(f'R0 is: {string}', True, (50, 50, 50))
+    string_rect = string_render.get_rect()
+    string_rect.topleft = (0, 0)
+    screen.blit(string_render, string_rect)

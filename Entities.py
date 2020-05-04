@@ -41,6 +41,9 @@ class Entity:
         else:
             return False
 
+    def num_of_infected_reset(self):
+        self.status.num_of_infected = 0
+
     def walk(self):
         # 每帧走的距离
         if 0 <= self.walk_direction <= 90:
@@ -55,18 +58,22 @@ class Entity:
         else:
             x = self.location[0]+(setting.WALK_SPEED/setting.FPS)*math.sin((360-self.walk_direction)/360)
             y = self.location[1]+(setting.WALK_SPEED/setting.FPS)*math.cos((360-self.walk_direction)/360)
+        self.location = [abs(x), abs(y)]
         _new_dirction = random.gauss(0, 1)*360 + self.walk_direction
-        self.walk_direction = _new_dirction
-        self.location = [x, y]
+        if x < 0 or y < 0:
+            self.walk_direction = abs(_new_dirction-180)
+        else:
+            self.walk_direction = abs(_new_dirction)
 
 
 class Status:
 
-    def __init__(self, is_infected=0, is_quarantined=0, is_visiting=0):
+    def __init__(self, is_infected=0, is_quarantined=0, is_visiting=0, num_of_infected=0):
         # 0表示未感染，1及以上表示感染的天数
         self.__is_infected = is_infected
         self.__is_quarantined = is_quarantined
         self.__is_visiting = is_visiting
+        self.__num_of_infected = num_of_infected
 
     def status_value_check(self, value):
         if not isinstance(value, int):
@@ -97,3 +104,11 @@ class Status:
     @is_visiting.setter
     def is_visiting(self, value):
         self.__is_visiting = self.status_value_check(value)
+
+    @property
+    def num_of_infected(self):
+        return self.__num_of_infected
+
+    @num_of_infected.setter
+    def num_of_infected(self, value):
+        self.__num_of_infected = value

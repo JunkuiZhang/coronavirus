@@ -21,6 +21,7 @@ if __name__ == '__main__':
     clock.tick(setting.FPS)
     pygame.display.set_caption('新冠肺炎模拟')
     a.draw_pop(screen, c)
+    FigsDrawing.string_draw(screen, 'None')
     # pygame.draw.line(screen, (100, 100, 100), (100, 0), (500, 500), 5)
     pygame.display.update()
 
@@ -41,8 +42,15 @@ if __name__ == '__main__':
             w.live_one_day(fps_indicator%setting.FPS==0)
             a.draw_background(screen)
             a.draw_pop(screen, c)
+            if w.data['r0'] is None:
+                _r0 = 'None'
+            else:
+                _r0 = round(w.data['r0']*5, 2)
+            FigsDrawing.string_draw(screen, _r0)
             clock.tick(setting.FPS)
             pygame.display.update()
             if time_indicator % 5 == 0:
                 FigsDrawing.fig_draw(w.data)
+            if w.game_over_check(time_indicator%10==0):
+                is_paused = not is_paused
             fps_indicator += 1

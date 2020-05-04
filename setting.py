@@ -22,13 +22,13 @@ BACKGROUND_COLOR = (200, 200, 200)
 # 距离病人多少距离内有几率感染，单位：格
 INFECTION_RADIUS = WORLD_SIZE*.04
 # 接触病人后，有多少的几率被感染
-INFECTION_CHANCE = .15
+INFECTION_CHANCE = .12
 # 暂时无用，开启关闭隔离
 QUARANTINE_FACTOR = 1
 # 被发现并隔离的几率
 QUARANTINE_CHANCE = 1
 # 感染几天后才被隔离
-QUARANTINE_INTERVAL = 5 * FPS
+QUARANTINE_INTERVAL = 4 * FPS
 
 
 # 待在集中区被感染的概率
