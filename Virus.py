@@ -1,6 +1,9 @@
+import setting
+
+
 class VirusSpread:
 
-    def __init__(self, infection_radius=10, infection_chance=.2):
+    def __init__(self, infection_radius=setting.INFECTION_RADIUS, infection_chance=setting.INFECTION_CHANCE):
         self.infection_radius = infection_radius
         self.__infection_chance = infection_chance
 
