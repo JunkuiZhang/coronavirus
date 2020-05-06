@@ -1,8 +1,5 @@
-import SomeMath
 import Virus
-import random
 import setting
-from numpy import mean
 
 
 class World:
@@ -10,49 +7,55 @@ class World:
     def __init__(self, communities, quarantine_factor=setting.QUARANTINE_FACTOR):
         self.communities = communities
         self.virus_setting = Virus.VirusSpread()
-        self.new_entity_pool = self.communities.entity_pool.copy()
-        self.new_infected_pool = self.communities.infected_pool.copy()
         self.world_time = 0
         self.quarantine_factor = quarantine_factor
-        self.data = {'time': [], 'num': [], 'num_cur_infected': [], 'r0': None}
+        self.data = {'total_num_quarantined': 0, 'total_num_infected': [len(communities.infected_id_pool)],
+                     'num_cur_infected': [len(communities.infected_id_pool)], 'r0': None, 'time':[0]}
+        self.one_frame_data = {'get_infected_by':[], 'delta_infected':0, 'is_quarantined':0, 'park_infected':0}
+        self.park_indicator = [0, 0, 0]
+        self.frames_data = {'num_get_infected_by':0, 'delta_infected':0, 'is_quarantined':0, 'park_infected':0}
+        self.infected_id_pool = communities.infected_id_pool
 
-    def game_over_check(self, indicator):
-        if indicator:
-            if len(self.communities.infected_pool) == 0:
-                return True
-            else:
-                return False
+    def live_one_day(self, a_day_indicator, group, screen, big_pos_list):
+        self.communities.get_neighbor()
+        group.update(screen, a_day_indicator, self.one_frame_data, self.park_indicator, big_pos_list)
+        self.one_frame_data_proc()
+        if a_day_indicator:
+            self.frames_data_proc()
+
+    def frames_data_proc(self):
+        self.world_time += 1
+        self.data['time'].append(self.world_time)
+        _frames_data = self.frames_data
+        self.park_indicator = self.park_indicator[1:]
+        self.park_indicator.append(_frames_data['park_infected'])
+        if _frames_data['num_get_infected_by'] == 0:
+            pass
+        else:
+            self.data['r0'] = _frames_data['delta_infected']/_frames_data['num_get_infected_by']*setting.QUARANTINE_INTERVAL
+        _indicator = self.data['total_num_infected'][-1]
+        self.data['total_num_infected'].append(_frames_data['delta_infected'] + _indicator)
+        self.data['total_num_quarantined'] += _frames_data['is_quarantined']
+        self.data['num_cur_infected'].append(self.data['total_num_infected'][-1] - self.data['total_num_quarantined'])
+        self.frames_data_reset()
+
+    def one_frame_data_proc(self):
+        _one_frame_data = self.one_frame_data
+        self.frames_data['num_get_infected_by'] += len(_one_frame_data['get_infected_by'])
+        self.frames_data['delta_infected'] += _one_frame_data['delta_infected']
+        self.frames_data['is_quarantined'] += _one_frame_data['is_quarantined']
+        self.frames_data['park_infected'] = _one_frame_data['park_infected']
+        self.one_frame_data_reset()
+
+    def is_virus_gone(self):
+        if  (self.data['total_num_quarantined'] == self.data['total_num_infected'][-1]) and \
+                (sum(self.park_indicator) == 0):
+            return True
         else:
             return False
 
-    def live_one_day(self, a_day_indicator):
-        self.new_infected_pool = self.communities.infected_pool.copy()
-        self.new_entity_pool = self.communities.entity_pool.copy()
-        if a_day_indicator:
-            self.data['time'].append(self.world_time)
-            self.data['num'].append(setting.POP_SIZE-len(self.communities.entity_pool))
-            self.data['num_cur_infected'].append(setting.POP_SIZE-len(self.communities.entity_pool)
-                                                 -len(self.communities.quarantined_pool))
-        for inf_key, inf_ent in self.communities.infected_pool.items():
-            inf_pos = inf_ent.location
-            for nor_key, nor_ent in self.communities.entity_pool.items():
-                dist = SomeMath.dist_cal(nor_ent.location, inf_pos)
-                if dist <= self.virus_setting.infection_radius:
-                    if self.new_entity_pool.get(nor_key) is None:
-                        continue
-                    if random.random() <= SomeMath.get_infect_chance(dist):
-                        self.new_infected_pool[inf_key].status.num_of_infected += 1
-                        self.new_infected_pool[nor_key] = self.new_entity_pool.pop(nor_key)
-        for key, ent in self.new_infected_pool.items():
-            ent.status.is_infected += 1
-        self.communities.entity_pool = self.new_entity_pool.copy()
-        self.communities.infected_pool = self.new_infected_pool.copy()
-        self.communities.community_central_park()
-        self.communities.quarantine()
-        self.communities.community_move(a_day_indicator)
-        if a_day_indicator:
-            self.world_time += 1
-            r0 = []
-            for key, ent in self.communities.infected_pool.items():
-                r0.append(ent.status.num_of_infected)
-                self.data['r0'] = mean(r0)
+    def one_frame_data_reset(self):
+        self.one_frame_data = {'get_infected_by':[], 'delta_infected':0, 'is_quarantined':0, 'park_infected':0}
+
+    def frames_data_reset(self):
+        self.frames_data = {'num_get_infected_by':0, 'delta_infected': 0, 'is_quarantined': 0, 'park_infected': 0}
