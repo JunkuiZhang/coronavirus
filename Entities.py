@@ -50,7 +50,16 @@ class Entity(pygame.sprite.Sprite):
         self.id = id
         self.walk_direction = random.randrange(0, 360)
 
-    def update(self, screen, one_day_indicator, data, park_indicator, big_pos_list):
+    def update(self, screen, one_day_indicator, data, park_indicator, big_pos_list, keep_dist_change,
+               back_to_work_indicator):
+        if setting.KEEP_DIST_CHANGE:
+            if self.is_dist_kept and keep_dist_change:
+                self.is_dist_kept = False
+        else:
+            pass
+        if back_to_work_indicator > setting.POP_SIZE*.1:
+            if setting.BACK_TO_WORK and not keep_dist_change:
+                self.is_dist_kept = True
         if self.status.is_visiting + self.status.is_quarantined > 0:
             _is_here = False
         else:
@@ -243,7 +252,11 @@ class Entity(pygame.sprite.Sprite):
 
     def walk(self):
         # 每帧走的距离
-        self.velocity = Vector2((1,0)).rotate(self.walk_direction)*setting.WALK_SPEED
+        if self.is_dist_kept:
+            _factor = .2
+        else:
+            _factor = 1
+        self.velocity = Vector2((1,0)).rotate(self.walk_direction)*setting.WALK_SPEED*_factor
         self.location += self.velocity
         self.position_bound_check()
         self.rect.center = self.location

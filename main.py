@@ -8,7 +8,8 @@ import random
 
 
 if __name__ == '__main__':
-    random.seed(setting.SEED)
+    if setting.SEED:
+        random.seed(setting.SEED)
     a = FigsDrawing.Animation()
     c = Communities.Community(size=setting.POP_SIZE, world_size=setting.WORLD_SIZE)
     group = pygame.sprite.Group()
@@ -19,7 +20,7 @@ if __name__ == '__main__':
     a.draw_background(screen)
     clock = pygame.time.Clock()
     clock.tick(setting.FPS)
-    pygame.display.set_caption('新冠肺炎模拟')
+    pygame.display.set_caption('疫情模拟 | 张峻魁')
     # a.draw_pop(screen, c)
     # group.update(screen, False, )
     FigsDrawing.string_draw(screen, 'None', 0)
@@ -29,6 +30,7 @@ if __name__ == '__main__':
     is_paused = True
     fps_indicator = 1
     time_indicator = 0
+    dist_keep_change = False
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -37,13 +39,15 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if event.key == K_SPACE:
                     is_paused = not is_paused
+                if event.key == K_RETURN:
+                    dist_keep_change = not dist_keep_change
 
         if not is_paused:
             clock.tick(setting.FPS)
             time_indicator = fps_indicator // setting.FPS
             is_one_day_finished = fps_indicator%setting.FPS == 0
             a.draw_background(screen)
-            w.live_one_day(is_one_day_finished, group, screen, c.big_pos_list)
+            w.live_one_day(is_one_day_finished, group, screen, c.big_pos_list, dist_keep_change)
             if w.data['r0'] is None:
                 _r0 = 'None'
             else:
@@ -53,5 +57,5 @@ if __name__ == '__main__':
             if w.is_virus_gone():
                 is_paused = not is_paused
             if time_indicator % 5 == 0:
-                FigsDrawing.fig_draw(w.data)
+                FigsDrawing.fig_draw(w.data, dist_keep_change)
             fps_indicator += 1

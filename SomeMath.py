@@ -62,7 +62,7 @@ def get_gauss_rand(theta=1):
     return a
 
 def get_new_direction(direct):
-    new_direc = get_gauss_rand() * 120 + direct
+    new_direc = get_gauss_rand() * 90 + direct
     return new_direc
 
 

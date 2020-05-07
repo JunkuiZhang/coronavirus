@@ -16,9 +16,12 @@ class World:
         self.frames_data = {'num_get_infected_by':0, 'delta_infected':0, 'is_quarantined':0, 'park_infected':0}
         self.infected_id_pool = communities.infected_id_pool
 
-    def live_one_day(self, a_day_indicator, group, screen, big_pos_list):
+    def live_one_day(self, a_day_indicator, group, screen, big_pos_list, dist_factor):
+        if dist_factor:
+            setting.VISIT_CHANCE = .02
         self.communities.get_neighbor()
-        group.update(screen, a_day_indicator, self.one_frame_data, self.park_indicator, big_pos_list)
+        group.update(screen, a_day_indicator, self.one_frame_data, self.park_indicator, big_pos_list, dist_factor,
+                     self.data['total_num_infected'][-1])
         self.one_frame_data_proc()
         if a_day_indicator:
             self.frames_data_proc()

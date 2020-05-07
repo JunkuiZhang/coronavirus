@@ -41,19 +41,26 @@ class Animation:
                     color = (50, 50, 50)
                 pygame.draw.circle(screen, color, coordinates, _radius)
 
-
-def fig_draw(data):
+def fig_draw(data, keep_dist_change):
     pyplot.figure("感染人数")
     pyplot.ion()
     pyplot.cla()
     pyplot.style.use('ggplot')
-    pyplot.plot(data['time'], data['total_num_infected'], '-', label='总感染人数')
-    pyplot.plot(data['time'], data['num_cur_infected'], '-', label='当前感染人数')
+    y_lim = (int(data['total_num_infected'][-1]//100)+1)*100
+    pyplot.ylim([0, y_lim])
+    pyplot.plot(data['time'], data['total_num_infected'], label='总感染人数')
+    pyplot.plot(data['time'], data['num_cur_infected'], label='现存感染人数')
+    if keep_dist_change:
+        if setting.KEEP_DIST_CHANGE_TIME == 0:
+            setting.KEEP_DIST_CHANGE_TIME = data['time'][-1]
+        else:
+            pass
+        pyplot.vlines(setting.KEEP_DIST_CHANGE_TIME, 0, y_lim, 'red')
     pyplot.xlabel('时间')
     pyplot.ylabel('人数')
-    pyplot.title('新冠疫情传播状况')
+    pyplot.title('疫情传播模拟')
     pyplot.legend(loc='best')
-    pyplot.grid()
+    pyplot.grid(True)
     pyplot.pause(0.03)
 
 def string_draw(screen, string, string2):

@@ -75,9 +75,9 @@ class Community:
                 return False
 
     def community_init(self, group):
-        # infected_id = random.sample(range(self.size), int(round(self.size*setting.INITIAL_CHANCE, 0)))
+        infected_id = random.sample(range(self.size), int(round(self.size*setting.INITIAL_CHANCE, 0)))
         self.get_empty_big_pos()
-        infected_id = random.sample(range(self.size), 1)
+        # infected_id = random.sample(range(self.size), 1)
         for num in range(self.size):
             ent = Entities.Entity()
             _id = num + 1
